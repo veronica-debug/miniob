@@ -126,6 +126,84 @@ RC Table::create(int32_t table_id,
   return rc;
 }
 
+RC Table::destroy() {
+  RC ret = sync();  // 同步数据
+  if (ret != RC::SUCCESS) {
+    LOG_ERROR("Failed to synchronize data before destroying table: %s", table_meta_.name());
+    return ret;
+  }
+
+  // 删除元数据文件
+  std::string meta_path = table_meta_file(base_dir_.c_str(), table_meta_.name());
+  if (unlink(meta_path.c_str()) != 0) {
+    LOG_ERROR("Failed to remove meta file: %s, error: %s", meta_path.c_str(), strerror(errno));
+    return RC::FILE_REMOVE;
+  }
+
+  // 删除数据文件
+  std::string data_path = table_data_file(base_dir_.c_str(), table_meta_.name());
+  if (unlink(data_path.c_str()) != 0) {
+    LOG_ERROR("Failed to remove data file: %s, error: %s", data_path.c_str(), strerror(errno));
+    return RC::FILE_REMOVE;
+  }
+
+  // 删除每个索引文件
+  int index_count = table_meta_.index_num();
+  for (int i = 0; i < index_count; i++) {
+    IndexMeta *index_meta = const_cast<IndexMeta*>(table_meta_.index(i));
+    std::string index_path = table_index_file(base_dir_.c_str(), table_meta_.name(), index_meta->name());
+
+    // 关闭并移除索引
+    indexes_[i]->close();
+    if (unlink(index_path.c_str()) != 0) {
+      LOG_ERROR("Failed to remove index file: %s, error: %s", index_path.c_str(), strerror(errno));
+      return RC::FILE_REMOVE;
+    }
+    delete indexes_[i];
+  }
+  indexes_.clear();
+
+  // 关闭数据缓冲池
+  if (data_buffer_pool_ != nullptr) {
+    data_buffer_pool_->close_file();
+    data_buffer_pool_ = nullptr;
+  }
+
+  // 删除记录处理器
+  if (record_handler_ != nullptr) {
+    delete record_handler_;
+    record_handler_ = nullptr;
+  }
+
+  LOG_INFO("Table %s destroyed successfully.", table_meta_.name());
+  return RC::SUCCESS;
+}
+
+
+RC Table::drop_table() {
+  RC ret = destroy(); // 先调用 destroy 方法删除元数据和数据文件
+  if (ret != RC::SUCCESS) {
+    LOG_ERROR("Failed to destroy table: %s", table_meta_.name());
+    return ret;
+  }
+
+  // 删除其他资源，如缓存池等
+  if (data_buffer_pool_ != nullptr) {
+    data_buffer_pool_->close_file();
+    data_buffer_pool_ = nullptr;
+  }
+
+  // 删除表索引
+  for (Index *index : indexes_) {
+    delete index;
+  }
+  indexes_.clear();
+
+  LOG_INFO("Table %s has been dropped successfully.", table_meta_.name());
+  return RC::SUCCESS;
+}
+
+
 RC Table::open(const char *meta_file, const char *base_dir)
 {
   // 加载元数据文件

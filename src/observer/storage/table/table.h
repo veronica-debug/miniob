@@ -1,17 +1,3 @@
-/* Copyright (c) 2021 Xie Meiyi(xiemeiyi@hust.edu.cn) and OceanBase and/or its affiliates. All rights reserved.
-miniob is licensed under Mulan PSL v2.
-You can use this software according to the terms and conditions of the Mulan PSL v2.
-You may obtain a copy of Mulan PSL v2 at:
-         http://license.coscl.org.cn/MulanPSL2
-THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
-EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
-MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
-See the Mulan PSL v2 for more details. */
-
-//
-// Created by Meiyi & Wangyunlai on 2021/5/12.
-//
-
 #pragma once
 
 #include <functional>
@@ -92,6 +78,9 @@ public:
     return record_handler_;
   }
 
+  // 新添加 drop_table 方法声明
+  RC drop_table();
+
 public:
   int32_t table_id() const { return table_meta_.table_id(); }
   const char *name() const;
@@ -99,6 +88,7 @@ public:
   const TableMeta &table_meta() const;
 
   RC sync();
+  RC destroy();  // 添加 destroy 方法的声明
 
 private:
   RC insert_entry_of_indexes(const char *record, const RID &rid);

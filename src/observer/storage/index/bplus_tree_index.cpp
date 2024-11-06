@@ -1,17 +1,3 @@
-/* Copyright (c) 2021 OceanBase and/or its affiliates. All rights reserved.
-miniob is licensed under Mulan PSL v2.
-You can use this software according to the terms and conditions of the Mulan PSL v2.
-You may obtain a copy of Mulan PSL v2 at:
-         http://license.coscl.org.cn/MulanPSL2
-THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
-EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
-MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
-See the Mulan PSL v2 for more details. */
-
-//
-// Created by wangyunlai.wyl on 2021/5/19.
-//
-
 #include "storage/index/bplus_tree_index.h"
 #include "common/log/log.h"
 
@@ -76,7 +62,8 @@ RC BplusTreeIndex::open(const char *file_name, const IndexMeta &index_meta, cons
   return RC::SUCCESS;
 }
 
-RC BplusTreeIndex::close()
+// 修改：将返回类型从 RC 改为 void
+void BplusTreeIndex::close() 
 {
   if (inited_) {
     LOG_INFO("Begin to close index, index:%s, field:%s", index_meta_.name(), index_meta_.field());
@@ -84,7 +71,6 @@ RC BplusTreeIndex::close()
     inited_ = false;
   }
   LOG_INFO("Successfully close index.");
-  return RC::SUCCESS;
 }
 
 RC BplusTreeIndex::insert_entry(const char *record, const RID *rid)
@@ -117,7 +103,7 @@ RC BplusTreeIndex::sync()
 
 ////////////////////////////////////////////////////////////////////////////////
 BplusTreeIndexScanner::BplusTreeIndexScanner(BplusTreeHandler &tree_handler) : tree_scanner_(tree_handler)
-{}
+{ }
 
 BplusTreeIndexScanner::~BplusTreeIndexScanner() noexcept
 {

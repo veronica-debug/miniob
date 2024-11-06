@@ -1,17 +1,3 @@
-/* Copyright (c) 2021 OceanBase and/or its affiliates. All rights reserved.
-miniob is licensed under Mulan PSL v2.
-You can use this software according to the terms and conditions of the Mulan PSL v2.
-You may obtain a copy of Mulan PSL v2 at:
-         http://license.coscl.org.cn/MulanPSL2
-THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
-EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
-MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
-See the Mulan PSL v2 for more details. */
-
-//
-// Created by Meiyi & Wangyunlai on 2021/5/11.
-//
-
 #pragma once
 
 #include <stddef.h>
@@ -79,6 +65,12 @@ public:
    * 
    */
   virtual RC sync() = 0;
+
+  /**
+   * @brief 关闭索引，释放相关资源
+   * @details 由派生类实现
+   */
+  virtual void close() = 0;
 
 protected:
   RC init(const IndexMeta &index_meta, const FieldMeta &field_meta);

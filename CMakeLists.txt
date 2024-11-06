@@ -1,3 +1,5 @@
+add_definitions("-Wall -g")
+
 cmake_minimum_required(VERSION 3.10)
 set(CMAKE_CXX_STANDARD 20)
 
@@ -91,6 +93,8 @@ IF (EXISTS /usr/local/lib64)
 ENDIF ()
 
 INCLUDE_DIRECTORIES(. ${PROJECT_SOURCE_DIR}/deps /usr/local/include)
+INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/src/observer/sql/executor)
+
 
 # ADD_SUBDIRECTORY(src bin)  bin 为目标目录， 可以省略
 ADD_SUBDIRECTORY(deps)
